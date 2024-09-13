@@ -125,9 +125,9 @@ git checkout -b "${RELEASE_DOCS_BRANCH}"
 
 echo "In $(pwd), run git config..."
 # config so we can actually push to the website repo without it blowing up
-git config --unset-all http.https://github.com/.extraheader
-git config user.name "GitHub Actions Bot"
-git config user.email "<>"
+git config --local --unset-all http.https://github.com/.extraheader
+git config --local user.name "GitHub Actions Bot"
+git config --local user.email "<>"
 
 echo "Copying release docs from ${KROXYLICIOUS_DOCS_LOCATION} to ${WEBSITE_DOCS_LOCATION}/_files"
 mkdir -p "${WEBSITE_DOCS_LOCATION}/"
