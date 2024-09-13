@@ -28,10 +28,10 @@ while getopts ":v:b:k:r:n:dsh" opt; do
     r) REPOSITORY="${OPTARG}"
     ;;
     k) GPG_KEY="${OPTARG}"
-      if [[ -z "${GPG_KEY}" ]]; then
-          echo "GPG_KEY not set unable to sign the release. Please specify -k <YOUR_GPG_KEY>" 1>&2
-          exit 1
-      fi
+#      if [[ -z "${GPG_KEY}" ]]; then
+#          echo "GPG_KEY not set unable to sign the release. Please specify -k <YOUR_GPG_KEY>" 1>&2
+#          exit 1
+#      fi
     ;;
     n) DEVELOPMENT_VERSION="${OPTARG}"
     ;;
@@ -60,10 +60,10 @@ EOF
 
 done
 
-if [[ -z "${GPG_KEY}" ]]; then
-    echo "GPG_KEY not set unable to sign the release. Please specify -k <YOUR_GPG_KEY>" 1>&2
-    exit 1
-fi
+#if [[ -z "${GPG_KEY}" ]]; then
+#    echo "GPG_KEY not set unable to sign the release. Please specify -k <YOUR_GPG_KEY>" 1>&2
+#    exit 1
+#fi
 
 if [[ -z ${RELEASE_VERSION} ]]; then
   echo "No version specified, aborting"
@@ -163,62 +163,62 @@ git tag -f "${RELEASE_TAG}"
 
 git push "${REPOSITORY}" "${RELEASE_TAG}" ${GIT_DRYRUN:-}
 
-echo "Deploying release"
-
-# shellcheck disable=SC2086
-# Quoting leads to an extra space which causes maven to barf!
-mvn -q -Prelease,dist -DskipTests=true -DreleaseSigningKey="${GPG_KEY}" ${MVN_DEPLOY_DRYRUN} -DprocessAllModules=true deploy
-
-echo "Release deployed. Extracting release notes in: ${RELEASE_NOTES_DIR}"
-mkdir -p "${RELEASE_NOTES_DIR}"
-csplit --silent --prefix "${RELEASE_NOTES_DIR}/release-notes_" CHANGELOG.md "/^## /" '{*}'
-
-echo "Preparing for development of ${DEVELOPMENT_VERSION}"
-PREPARE_DEVELOPMENT_BRANCH="prepare-development-${RELEASE_DATE}"
-git checkout -b "${PREPARE_DEVELOPMENT_BRANCH}" "${TEMPORARY_RELEASE_BRANCH}"
-
-updateVersions "${RELEASE_VERSION}" "${DEVELOPMENT_VERSION}"
-# bump the Changelog to the next SNAPSHOT version. We do it this way so the changelog has the new release as the first entry
-replaceInFile "s_##\s${RELEASE_VERSION//./\\.}_## SNAPSHOT\n## ${RELEASE_VERSION//./\\.}_g" CHANGELOG.md
-
-# bump the docs for the development version
-replaceInFile "s_:ProductVersion:.*_:ProductVersion: ${DEVELOPMENT_VERSION%.*}_g" docs/_assets/attributes.adoc
-replaceInFile "s_:gitRef:.*_:gitRef: tree/main_g" docs/_assets/attributes.adoc # this doesn't make a lot sense...
-
-# bump the reference version in kroxylicious-api
-mvn -q -B -pl :kroxylicious-api versions:set-property -Dproperty="ApiCompatability.ReferenceVersion" -DnewVersion="${RELEASE_VERSION}" -DgenerateBackupPoms=false
-# reset kroxylicious-api to enable semver checks if they have been disabled
-mvn -q -B -pl :kroxylicious-api versions:set-property -Dproperty="ApiCompatability.EnforceForMajorVersionZero" -DnewVersion="true" -DgenerateBackupPoms=false
-git add kroxylicious-api/pom.xml
-
-git commit --message "Start next development version" --signoff
-
-if [[ "${DRY_RUN:-false}" == true ]]; then
-    exit 0
-fi
-
-if ! command -v gh &> /dev/null
-then
-    echo "gh command could not be found. Please create a pull request by hand https://github.com/kroxylicious/kroxylicious/compare"
-    exit
-fi
-
-ORIGINAL_GH_DEFAULT_REPO=$(gh repo set-default -v | (grep -v 'no default repository' || true))
-gh repo set-default "$(git remote get-url "${REPOSITORY}")"
-
-# create GitHub release via CLI https://cli.github.com/manual/gh_release_create
-# it is created as a draft, the deploy_release workflow will publish it.
-echo "Creating draft release notes."
-API_COMPATABILITY_REPORT=kroxylicious-api/target/japicmp/"${RELEASE_VERSION}"-compatability.html
-cp kroxylicious-api/target/japicmp/japicmp.html "${API_COMPATABILITY_REPORT}"
-# csplit will create a file for every version as we use ## to denote versions. We also use # CHANGELOG as a header so the current release is actually in the 01 file (zero based)
-gh release create --title "${RELEASE_TAG}" --notes-file "${RELEASE_NOTES_DIR}/release-notes_01" --draft "${RELEASE_TAG}" ./kroxylicious-*/target/kroxylicious-*-bin.* "${API_COMPATABILITY_REPORT}"
-
-
-BODY="Release version ${RELEASE_VERSION}"
-
-# Workaround https://github.com/cli/cli/issues/2691
-git push "${REPOSITORY}" HEAD
-
-echo "Creating pull request to merge the released version."
-gh pr create --head "${PREPARE_DEVELOPMENT_BRANCH}" --base "${BRANCH_FROM}" --title "Kroxylicious development version ${RELEASE_DATE}" --body "${BODY}" --repo "$(gh repo set-default -v)"
+#echo "Deploying release"
+#
+## shellcheck disable=SC2086
+## Quoting leads to an extra space which causes maven to barf!
+#mvn -q -Prelease,dist -DskipTests=true -DreleaseSigningKey="${GPG_KEY}" ${MVN_DEPLOY_DRYRUN} -DprocessAllModules=true deploy
+#
+#echo "Release deployed. Extracting release notes in: ${RELEASE_NOTES_DIR}"
+#mkdir -p "${RELEASE_NOTES_DIR}"
+#csplit --silent --prefix "${RELEASE_NOTES_DIR}/release-notes_" CHANGELOG.md "/^## /" '{*}'
+#
+#echo "Preparing for development of ${DEVELOPMENT_VERSION}"
+#PREPARE_DEVELOPMENT_BRANCH="prepare-development-${RELEASE_DATE}"
+#git checkout -b "${PREPARE_DEVELOPMENT_BRANCH}" "${TEMPORARY_RELEASE_BRANCH}"
+#
+#updateVersions "${RELEASE_VERSION}" "${DEVELOPMENT_VERSION}"
+## bump the Changelog to the next SNAPSHOT version. We do it this way so the changelog has the new release as the first entry
+#replaceInFile "s_##\s${RELEASE_VERSION//./\\.}_## SNAPSHOT\n## ${RELEASE_VERSION//./\\.}_g" CHANGELOG.md
+#
+## bump the docs for the development version
+#replaceInFile "s_:ProductVersion:.*_:ProductVersion: ${DEVELOPMENT_VERSION%.*}_g" docs/_assets/attributes.adoc
+#replaceInFile "s_:gitRef:.*_:gitRef: tree/main_g" docs/_assets/attributes.adoc # this doesn't make a lot sense...
+#
+## bump the reference version in kroxylicious-api
+#mvn -q -B -pl :kroxylicious-api versions:set-property -Dproperty="ApiCompatability.ReferenceVersion" -DnewVersion="${RELEASE_VERSION}" -DgenerateBackupPoms=false
+## reset kroxylicious-api to enable semver checks if they have been disabled
+#mvn -q -B -pl :kroxylicious-api versions:set-property -Dproperty="ApiCompatability.EnforceForMajorVersionZero" -DnewVersion="true" -DgenerateBackupPoms=false
+#git add kroxylicious-api/pom.xml
+#
+#git commit --message "Start next development version" --signoff
+#
+#if [[ "${DRY_RUN:-false}" == true ]]; then
+#    exit 0
+#fi
+#
+#if ! command -v gh &> /dev/null
+#then
+#    echo "gh command could not be found. Please create a pull request by hand https://github.com/kroxylicious/kroxylicious/compare"
+#    exit
+#fi
+#
+#ORIGINAL_GH_DEFAULT_REPO=$(gh repo set-default -v | (grep -v 'no default repository' || true))
+#gh repo set-default "$(git remote get-url "${REPOSITORY}")"
+#
+## create GitHub release via CLI https://cli.github.com/manual/gh_release_create
+## it is created as a draft, the deploy_release workflow will publish it.
+#echo "Creating draft release notes."
+#API_COMPATABILITY_REPORT=kroxylicious-api/target/japicmp/"${RELEASE_VERSION}"-compatability.html
+#cp kroxylicious-api/target/japicmp/japicmp.html "${API_COMPATABILITY_REPORT}"
+## csplit will create a file for every version as we use ## to denote versions. We also use # CHANGELOG as a header so the current release is actually in the 01 file (zero based)
+#gh release create --title "${RELEASE_TAG}" --notes-file "${RELEASE_NOTES_DIR}/release-notes_01" --draft "${RELEASE_TAG}" ./kroxylicious-*/target/kroxylicious-*-bin.* "${API_COMPATABILITY_REPORT}"
+#
+#
+#BODY="Release version ${RELEASE_VERSION}"
+#
+## Workaround https://github.com/cli/cli/issues/2691
+#git push "${REPOSITORY}" HEAD
+#
+#echo "Creating pull request to merge the released version."
+#gh pr create --head "${PREPARE_DEVELOPMENT_BRANCH}" --base "${BRANCH_FROM}" --title "Kroxylicious development version ${RELEASE_DATE}" --body "${BODY}" --repo "$(gh repo set-default -v)"
