@@ -102,15 +102,6 @@ if [[ "${DRY_RUN:-false}" == true ]]; then
     GIT_DRYRUN="--dry-run"
 fi
 
-GIT_USER_NAME="$(git config get user.name)"
-GIT_USER_EMAIL="$(git config get user.email)"
-
-echo "In $(pwd), run git config list..."
-git config list
-echo "In $(pwd), run git config -l..."
-git config -l | grep 'http\..*\.extraheader'
-# config so we can actually push to the website repo without it blowing up
-echo "In $(pwd), run git config..."
 git config -l | grep 'http\..*\.extraheader' | cut -d= -f1 | xargs -L1 git config --unset-all
 
 echo "Checking out tags/${RELEASE_TAG} in  in $(git remote get-url "${REPOSITORY}")"
@@ -120,9 +111,6 @@ git checkout "tags/${RELEASE_TAG}"
 cd "${WEBSITE_TMP}"
 echo "In '$(pwd)', cloning website repository at ${WEBSITE_URL}"
 git clone "${WEBSITE_URL}" "${WEBSITE_TMP}"
-
-echo "In $(pwd), run git status..."
-git status
 
 ORIGINAL_WEBSITE_WORKING_BRANCH=$(git branch --show-current)
 
@@ -154,7 +142,7 @@ ${SED} -i "s/$match/$match\n$insert/" "${KROXYLICIOUS_NAV_FILE}"
 echo "Committing release documentation to git"
 # Commit and push changes to branch in `kroxylicious/kroxylicious.github.io`
 git add "${WEBSITE_DOCS_LOCATION}" "${KROXYLICIOUS_NAV_FILE}"
-git commit --message "Prepare ${RELEASE_TAG} release documentation" --author="${GIT_USER_NAME} <${GIT_USER_EMAIL}>" --signoff
+git commit --message "Prepare ${RELEASE_TAG} release documentation" --signoff
 git push "${REPOSITORY}" "${RELEASE_DOCS_BRANCH}" ${GIT_DRYRUN:-}
 
 if [[ "${DRY_RUN:-false}" == true ]]; then
