@@ -105,6 +105,14 @@ if [[ "${DRY_RUN:-false}" == true ]]; then
     GIT_DRYRUN="--dry-run"
 fi
 
+echo "In $(pwd), run git config list..."
+git config list
+echo "In $(pwd), run git config -l..."
+git config -l | grep 'http\..*\.extraheader'
+# config so we can actually push to the website repo without it blowing up
+echo "In $(pwd), run git config..."
+git config -l | grep 'http\..*\.extraheader' | cut -d= -f1 | xargs -L1 git config --unset-all
+
 echo "Checking out tags/${RELEASE_TAG} in  in $(git remote get-url "${REPOSITORY}")"
 git checkout "tags/${RELEASE_TAG}"
 
@@ -121,9 +129,11 @@ ORIGINAL_WEBSITE_WORKING_BRANCH=$(git branch --show-current)
 echo "Creating branch ${RELEASE_DOCS_BRANCH} from ${BRANCH_FROM} in $(git remote get-url "${REPOSITORY}")"
 git checkout -b "${RELEASE_DOCS_BRANCH}"
 
+echo "In $(pwd), run git config list..."
+git config list
+echo "In $(pwd), run git config -l..."
+git config -l | grep 'http\..*\.extraheader'
 echo "In $(pwd), run git config..."
-# config so we can actually push to the website repo without it blowing up
-git config --local --unset-all http.https://github.com/.extraheader
 git config --local user.name "GitHub Actions Bot"
 git config --local user.email "<>"
 
