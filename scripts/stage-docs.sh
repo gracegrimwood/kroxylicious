@@ -105,6 +105,9 @@ if [[ "${DRY_RUN:-false}" == true ]]; then
     GIT_DRYRUN="--dry-run"
 fi
 
+GIT_USER_NAME="$(git config get user.name)"
+GIT_USER_EMAIL="$(git config get user.email)"
+
 echo "In $(pwd), run git config list..."
 git config list
 echo "In $(pwd), run git config -l..."
@@ -134,8 +137,8 @@ git config list
 echo "In $(pwd), run git config -l..."
 git config -l | grep 'http\..*\.extraheader'
 echo "In $(pwd), run git config..."
-git config --local user.name "GitHub Actions Bot"
-git config --local user.email "<>"
+git config user.name "${GIT_USER_NAME}"
+git config user.email "${GIT_USER_EMAIL}"
 
 echo "Copying release docs from ${KROXYLICIOUS_DOCS_LOCATION} to ${WEBSITE_DOCS_LOCATION}/_files"
 mkdir -p "${WEBSITE_DOCS_LOCATION}/"
