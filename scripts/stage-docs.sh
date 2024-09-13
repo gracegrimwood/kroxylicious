@@ -154,7 +154,7 @@ ${SED} -i "s/$match/$match\n$insert/" "${KROXYLICIOUS_NAV_FILE}"
 echo "Committing release documentation to git"
 # Commit and push changes to branch in `kroxylicious/kroxylicious.github.io`
 git add "${WEBSITE_DOCS_LOCATION}" "${KROXYLICIOUS_NAV_FILE}"
-git commit --message "Prepare ${RELEASE_TAG} release documentation" --signoff
+git commit --message "Prepare ${RELEASE_TAG} release documentation" --author="${GIT_USER_NAME} <${GIT_USER_EMAIL}>" --signoff
 git push "${REPOSITORY}" "${RELEASE_DOCS_BRANCH}" ${GIT_DRYRUN:-}
 
 if [[ "${DRY_RUN:-false}" == true ]]; then
