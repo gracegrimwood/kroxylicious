@@ -129,14 +129,6 @@ ORIGINAL_WEBSITE_WORKING_BRANCH=$(git branch --show-current)
 echo "Creating branch ${RELEASE_DOCS_BRANCH} from ${BRANCH_FROM} in $(git remote get-url "${REPOSITORY}")"
 git checkout -b "${RELEASE_DOCS_BRANCH}"
 
-echo "In $(pwd), run git config list..."
-git config list
-echo "In $(pwd), run git config -l..."
-git config -l | grep 'http\..*\.extraheader'
-echo "In $(pwd), run git config..."
-git config user.name "${GIT_USER_NAME}"
-git config user.email "${GIT_USER_EMAIL}"
-
 echo "Copying release docs from ${KROXYLICIOUS_DOCS_LOCATION} to ${WEBSITE_DOCS_LOCATION}/_files"
 mkdir -p "${WEBSITE_DOCS_LOCATION}/"
 cp -R "${KROXYLICIOUS_DOCS_LOCATION}" "${WEBSITE_DOCS_LOCATION}/_files"
