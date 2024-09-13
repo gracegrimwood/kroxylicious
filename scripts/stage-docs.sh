@@ -15,13 +15,11 @@ REPOSITORY="origin"
 BRANCH_FROM="main"
 DRY_RUN="false"
 ORIGINAL_GH_DEFAULT_REPO=""
-while getopts ":v:u:b:dh" opt; do
+while getopts ":v:u:dh" opt; do
   case $opt in
     v) RELEASE_VERSION="${OPTARG}"
     ;;
     u) WEBSITE_REPO_URL="${OPTARG}"
-    ;;
-    b) BRANCH_FROM="${OPTARG}"
     ;;
     d) DRY_RUN="true"
     ;;
@@ -30,7 +28,6 @@ while getopts ":v:u:b:dh" opt; do
 usage: $0 -v version -u url [-b branch] [-r repository] [-d] [-h]
  -v version number e.g. 0.3.0
  -u url of the website repository e.g. git@github.com:kroxylicious/kroxylicious.github.io.git
- -b branch to release from (defaults to 'main')
  -d dry-run mode
  -h this help message
 EOF
