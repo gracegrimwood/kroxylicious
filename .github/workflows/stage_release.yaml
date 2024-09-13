@@ -96,12 +96,12 @@ jobs:
           gpg-private-key: ${{ secrets.KROXYLICIOUS_RELEASE_PRIVATE_KEY }} # Value of the GPG private key to import
           overwrite-settings: true
 
-#      - name: 'Verify no existing staging repository exists'
-#        if: ${{ github.event.inputs.dry-run == 'false' }}
-#        env:
-#          SONATYPE_TOKEN_USERNAME: ${{ vars.KROXYLICIOUS_SONATYPE_TOKEN_USERNAME }}
-#          SONATYPE_TOKEN_PASSWORD: ${{ secrets.KROXYLICIOUS_SONATYPE_TOKEN_PASSWORD }}
-#        run: ./scripts/transition-staging-repository-state.sh -a
+      #      - name: 'Verify no existing staging repository exists'
+      #        if: ${{ github.event.inputs.dry-run == 'false' }}
+      #        env:
+      #          SONATYPE_TOKEN_USERNAME: ${{ vars.KROXYLICIOUS_SONATYPE_TOKEN_USERNAME }}
+      #          SONATYPE_TOKEN_PASSWORD: ${{ secrets.KROXYLICIOUS_SONATYPE_TOKEN_PASSWORD }}
+      #        run: ./scripts/transition-staging-repository-state.sh -a
 
       - name: 'Verify no existing release note exist for tag'
         env:
@@ -118,17 +118,18 @@ jobs:
                                      ${{ github.event.inputs.dry-run == 'true' && '-d' || '' }} \
                                      ${{ github.event.inputs.skip-tests == 'true' && '-s' || '' }}
         env:
-#          SONATYPE_TOKEN_USERNAME: ${{ vars.KROXYLICIOUS_SONATYPE_TOKEN_USERNAME }}
-#          SONATYPE_TOKEN_PASSWORD: ${{ secrets.KROXYLICIOUS_SONATYPE_TOKEN_PASSWORD }}
-#          MAVEN_GPG_PASSPHRASE: ${{ secrets.KROXYLICIOUS_RELEASE_PRIVATE_KEY_PASSPHRASE }}
+          #          SONATYPE_TOKEN_USERNAME: ${{ vars.KROXYLICIOUS_SONATYPE_TOKEN_USERNAME }}
+          #          SONATYPE_TOKEN_PASSWORD: ${{ secrets.KROXYLICIOUS_SONATYPE_TOKEN_PASSWORD }}
+          #          MAVEN_GPG_PASSPHRASE: ${{ secrets.KROXYLICIOUS_RELEASE_PRIVATE_KEY_PASSPHRASE }}
           GH_TOKEN: ${{ secrets.KROXYLICIOUS_RELEASE_TOKEN }} # For the gh cmd line tool used by stage-release.sh
 
       - name: 'Stage release docs'
         if: ${{ success() }}
-        run: ./scripts/stage-docs.sh -v ${{ github.event.inputs.release-version }} \
-          -u ${{ github.event.inputs.website-repository }} \
-          -b ${{ github.event.inputs.branch }} \
-          ${{ github.event.inputs.dry-run == 'true' && '-d' || '' }}
+        run: |
+          ./scripts/stage-docs.sh -v ${{ github.event.inputs.release-version }} \
+                                  -u ${{ github.event.inputs.website-repository }} \
+                                  -b ${{ github.event.inputs.branch }} \
+                                  ${{ github.event.inputs.dry-run == 'true' && '-d' || '' }}
         env:
           GH_TOKEN: ${{ secrets.KROXYLICIOUS_RELEASE_TOKEN }} # For the gh cmd line tool used by stage-docs.sh
 
