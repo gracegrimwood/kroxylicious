@@ -112,17 +112,22 @@ git checkout "tags/${RELEASE_TAG}"
 cd "${WEBSITE_TMP}"
 echo "In '$(pwd)', cloning website repository at ${WEBSITE_URL}"
 git clone "${WEBSITE_URL}"
+echo "Move to kroxylicious.github.io/ dir..."
 cd kroxylicious.github.io/
 
-# config so we can actually push to the website repo without it blowing up
-git config --unset-all http.https://github.com/.extraheader
-git config user.name "GitHub Actions Bot"
-git config user.email "<>"
+echo "In $(pwd), run git status..."
+git status
 
 ORIGINAL_WEBSITE_WORKING_BRANCH=$(git branch --show-current)
 
 echo "Creating branch ${RELEASE_DOCS_BRANCH} from ${BRANCH_FROM} in $(git remote get-url "${REPOSITORY}")"
 git checkout -b "${RELEASE_DOCS_BRANCH}"
+
+echo "In $(pwd), run git config..."
+# config so we can actually push to the website repo without it blowing up
+git config --unset-all http.https://github.com/.extraheader
+git config user.name "GitHub Actions Bot"
+git config user.email "<>"
 
 echo "Copying release docs from ${KROXYLICIOUS_DOCS_LOCATION} to ${WEBSITE_DOCS_LOCATION}/_files"
 mkdir -p "${WEBSITE_DOCS_LOCATION}/"
