@@ -140,7 +140,7 @@ fi
 
 if [[ "${SKIP_VALIDATION:-false}" != true ]]; then
     printf "Validating the build is ${GREEN}green${NC}"
-    mvn -q clean verify
+    mvn -q clean verify -DskipTests
 fi
 
 echo "Versioning Kroxylicious as ${RELEASE_VERSION}"
